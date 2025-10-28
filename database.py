@@ -2,7 +2,7 @@
 from typing import List, Optional
 from datetime import datetime
 
-from models import Product, ProductCreate, ProductUpdate
+from models import Product, ProductCreate, ProductUpdate, User, UserCreate, UserUpdate, Setting, SettingCreate, SettingUpdate
 
 
 class InMemoryDatabase:
@@ -10,7 +10,11 @@ class InMemoryDatabase:
 
     def __init__(self):
         self.products: List[Product] = []
+        self.users: List[User] = []
+        self.settings: List[Setting] = []
         self.next_id = 1
+        self.next_user_id = 1
+        self.next_setting_id = 1
         self._init_sample_data()
 
     def _init_sample_data(self):
@@ -81,6 +85,97 @@ class InMemoryDatabase:
         for i, product in enumerate(self.products):
             if product.id == product_id:
                 del self.products[i]
+                return True
+        return False
+
+    def create_user(self, user_data: UserCreate) -> User:
+        """Create a new user in the database."""
+        user = User(
+            id=self.next_user_id,
+            **user_data.dict(),
+            created_at=datetime.now()
+        )
+        self.users.append(user)
+        self.next_user_id += 1
+        return user
+
+    def get_all_users(self) -> List[User]:
+        """Get all users from the database."""
+        return self.users
+
+    def get_user(self, user_id: int) -> Optional[User]:
+        """Get a specific user by ID."""
+        for user in self.users:
+            if user.id == user_id:
+                return user
+        return None
+
+    def update_user(self, user_id: int, update_data: UserUpdate) -> Optional[User]:
+        """Update an existing user in the database."""
+        user = self.get_user(user_id)
+        if not user:
+            return None
+
+        update_dict = update_data.dict(exclude_unset=True)
+        for field, value in update_dict.items():
+            setattr(user, field, value)
+
+        return user
+
+    def delete_user(self, user_id: int) -> bool:
+        """Delete a user from the database."""
+        for i, user in enumerate(self.users):
+            if user.id == user_id:
+                del self.users[i]
+                return True
+        return False
+
+    def create_setting(self, setting_data: SettingCreate) -> Setting:
+        """Create a new setting in the database."""
+        setting = Setting(
+            id=self.next_setting_id,
+            **setting_data.dict(),
+            created_at=datetime.now()
+        )
+        self.settings.append(setting)
+        self.next_setting_id += 1
+        return setting
+
+    def get_all_settings(self) -> List[Setting]:
+        """Get all settings from the database."""
+        return self.settings
+
+    def get_setting(self, setting_id: int) -> Optional[Setting]:
+        """Get a specific setting by ID."""
+        for setting in self.settings:
+            if setting.id == setting_id:
+                return setting
+        return None
+
+    def get_setting_by_key(self, key: str) -> Optional[Setting]:
+        """Get a specific setting by key."""
+        for setting in self.settings:
+            if setting.key == key:
+                return setting
+        return None
+
+    def update_setting(self, setting_id: int, update_data: SettingUpdate) -> Optional[Setting]:
+        """Update an existing setting in the database."""
+        setting = self.get_setting(setting_id)
+        if not setting:
+            return None
+
+        update_dict = update_data.dict(exclude_unset=True)
+        for field, value in update_dict.items():
+            setattr(setting, field, value)
+
+        return setting
+
+    def delete_setting(self, setting_id: int) -> bool:
+        """Delete a setting from the database."""
+        for i, setting in enumerate(self.settings):
+            if setting.id == setting_id:
+                del self.settings[i]
                 return True
         return False
 

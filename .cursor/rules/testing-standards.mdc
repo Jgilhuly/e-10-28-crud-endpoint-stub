@@ -1,0 +1,5 @@
+---
+alwaysApply: true
+---
+
+Any time you modify or add an api endpoint, make sure to update `test_api.py`
